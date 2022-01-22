@@ -1,0 +1,132 @@
+buildscript {
+	repositories {
+		maven { url = 'https://maven.minecraftforge.net' }
+		mavenCentral()
+	}
+	dependencies {
+		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+	}
+}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'java-library'
+
+group = project.group
+archivesBaseName = project.modId
+
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+minecraft {
+
+	mappings channel: 'official', version: project.minecraftVersion
+
+	runs {
+		client {
+			workingDirectory project.file('run')
+
+			property 'forge.logging.markers', 'REGISTRIES'
+
+			property 'forge.logging.console.level', 'debug'
+
+			mods {
+				annotationconfig {
+					source sourceSets.main
+				}
+			}
+		}
+
+		server {
+			workingDirectory project.file('run')
+
+			property 'forge.logging.markers', 'REGISTRIES'
+
+			property 'forge.logging.console.level', 'debug'
+
+			mods {
+				annotationconfig {
+					source sourceSets.main
+				}
+			}
+		}
+
+		data {
+			workingDirectory project.file('run')
+
+			property 'forge.logging.markers', 'REGISTRIES'
+
+			property 'forge.logging.console.level', 'debug'
+
+			args '--mod', project.modId, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+			mods {
+				annotationconfig {
+					source sourceSets.main
+				}
+			}
+		}
+	}
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+dependencies {
+	minecraft 'net.minecraftforge:forge:'+project.minecraftVersion+'-'+project.forgeVersion
+}
+
+processResources {
+
+	def buildProps = project.properties.clone()
+
+	buildProps.put('file', [jarVersion: project.version])
+
+	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+
+		expand buildProps
+	}
+}
+
+jar {
+	manifest {
+		attributes([
+			"Specification-Title"     : project.modId,
+			"Specification-Vendor"    : project.modAuthor,
+			"Specification-Version"   : project.jar.archiveVersion,
+			"Implementation-Title"    : project.name,
+			"Implementation-Version"  : project.jar.archiveVersion,
+			"Implementation-Vendor"   : project.modAuthor,
+			"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+			])
+		}
+	}
+
+
+	jar.finalizedBy('reobfJar')
+
+	java {
+		withSourcesJar()
+		withJavadocJar()
+		toolchain.languageVersion = JavaLanguageVersion.of(17)
+	}
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				groupId = group
+				artifactId = archivesBaseName
+				version = version
+				artifact jar
+				artifact sourcesJar
+				artifact javadocJar
+			}
+		}
+		repositories {
+			maven {
+				name = "GitHubPackages"
+				url = "https://maven.pkg.github.com/anvil-mods/annotationconfig"
+				credentials {
+					username = System.getenv("GITHUB_ACTOR")
+					password = System.getenv("GITHUB_TOKEN")
+				}
+			}
+		}
+	}

@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[39,)"
+issueTrackerURL=""
+license="${license}"
+logoFile=""
+
+[[mods]]
+modId="annotationconfig"
+updateJSONURL=""
+version="${file.jarVersion}"
+displayName="${modName}"
+displayURL="${modHomepage}"
+credits="${modCredits}"
+authors="${modAuthor}"
+description='''
+${modDescription}
+'''
+
+[[dependencies.annotationconfig]]
+    modId="forge"
+    mandatory=true
+    versionRange="[39,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.annotationconfig]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${versionRange}"
+    ordering="NONE"
+    side="CLIENT"
