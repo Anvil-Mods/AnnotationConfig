@@ -13,9 +13,11 @@ apply plugin: 'maven-publish'
 apply plugin: 'java-library'
 
 group = project.group
+version = project.minecraftVersion + "-" + project.version
 archivesBaseName = project.modId
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+println(System.getenv("GITHUB_ACTOR"))
 minecraft {
 
 	mappings channel: 'official', version: project.minecraftVersion
